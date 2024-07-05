@@ -18,7 +18,7 @@ import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthorit
 import {DexAggregatorUManager, UManager} from "src/micro-managers/DexAggregatorUManager.sol";
 import {PriceRouter} from "src/interfaces/PriceRouter.sol";
 import {AggregationRouterV5} from "src/interfaces/AggregationRouterV5.sol";
-
+import {BoringGovernance} from "src/base/BoringGovernance.sol";
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
 contract DexAggregatorUManagerTest is Test, MainnetAddresses {
@@ -46,7 +46,7 @@ contract DexAggregatorUManagerTest is Test, MainnetAddresses {
         uint256 blockNumber = 19513510;
         _startFork(rpcKey, blockNumber);
 
-        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
+        boringVault = BoringVault(payable(address(new BoringGovernance(address(this), "Boring Vault", "BV", 18))));
 
         manager = new ManagerWithMerkleVerification(address(this), address(boringVault), vault);
 

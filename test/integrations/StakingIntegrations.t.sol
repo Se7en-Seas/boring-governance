@@ -11,6 +11,7 @@ import {ERC4626} from "@solmate/tokens/ERC4626.sol";
 import {StakingDecoderAndSanitizer} from "src/base/DecodersAndSanitizers/StakingDecoderAndSanitizer.sol";
 import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
+import {BoringGovernance} from "src/base/BoringGovernance.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
@@ -43,7 +44,7 @@ contract StakingIntegrationsTest is Test, MainnetAddresses {
 
         _startFork(rpcKey, blockNumber);
 
-        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
+        boringVault = BoringVault(payable(address(new BoringGovernance(address(this), "Boring Vault", "BV", 18))));
 
         manager = new ManagerWithMerkleVerification(address(this), address(boringVault), vault);
 

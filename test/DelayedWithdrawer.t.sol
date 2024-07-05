@@ -12,6 +12,7 @@ import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {ILiquidityPool} from "src/interfaces/IStaking.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {AtomicSolverV3, AtomicQueue} from "src/atomic-queue/AtomicSolverV3.sol";
+import {BoringGovernance} from "src/base/BoringGovernance.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
@@ -37,7 +38,7 @@ contract DelayedWithdrawTest is Test, MainnetAddresses {
         uint256 blockNumber = 19363419;
         _startFork(rpcKey, blockNumber);
 
-        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
+        boringVault = BoringVault(payable(address(new BoringGovernance(address(this), "Boring Vault", "BV", 18))));
 
         accountant = new AccountantWithRateProviders(
             address(this), address(boringVault), payoutAddress, 1e18, address(WETH), 1.1e4, 0.9e4, 1, 0, 0
@@ -73,7 +74,7 @@ contract DelayedWithdrawTest is Test, MainnetAddresses {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH/.
-        deal(address(boringVault), user, 1_000e18, true);
+        boringVault.enter(address(this), WETH, 0, user, 1_000e18);
         deal(address(WETH), address(boringVault), 1_000e18);
 
         uint96 sharesToWithdraw = 100e18;
@@ -109,7 +110,7 @@ contract DelayedWithdrawTest is Test, MainnetAddresses {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH/.
-        deal(address(boringVault), user, 1_000e18, true);
+        boringVault.enter(address(this), WETH, 0, user, 1_000e18);
         deal(address(WETH), address(boringVault), 1_000e18);
 
         uint96 sharesToWithdraw = 100e18;
@@ -149,7 +150,7 @@ contract DelayedWithdrawTest is Test, MainnetAddresses {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
+        boringVault.enter(address(this), WETH, 0, user, 1_000e18);
         deal(address(WETH), address(boringVault), 1_000e18);
 
         uint96 sharesToWithdraw = 100e18;
@@ -178,7 +179,7 @@ contract DelayedWithdrawTest is Test, MainnetAddresses {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
+        boringVault.enter(address(this), WETH, 0, user, 1_000e18);
         deal(address(WETH), address(boringVault), 1_000e18);
 
         uint96 sharesToWithdraw = 100e18;
@@ -207,7 +208,7 @@ contract DelayedWithdrawTest is Test, MainnetAddresses {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
+        boringVault.enter(address(this), WETH, 0, user, 1_000e18);
         deal(address(WETH), address(boringVault), 1_000e18);
 
         uint96 sharesToWithdraw = 100e18;
@@ -241,7 +242,7 @@ contract DelayedWithdrawTest is Test, MainnetAddresses {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
+        boringVault.enter(address(this), WETH, 0, user, 1_000e18);
         deal(address(WETH), address(boringVault), 1_000e18);
 
         uint256 userShareBalance = boringVault.balanceOf(user);
@@ -275,7 +276,7 @@ contract DelayedWithdrawTest is Test, MainnetAddresses {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
+        boringVault.enter(address(this), WETH, 0, user, 1_000e18);
         deal(address(WETH), address(boringVault), 1_000e18);
 
         uint96 sharesToWithdraw = 100e18;
@@ -322,7 +323,7 @@ contract DelayedWithdrawTest is Test, MainnetAddresses {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
+        boringVault.enter(address(this), WETH, 0, user, 1_000e18);
         deal(address(WETH), address(boringVault), 1_000e18);
 
         uint96 sharesToWithdraw = 100e18;
@@ -369,7 +370,7 @@ contract DelayedWithdrawTest is Test, MainnetAddresses {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
+        boringVault.enter(address(this), WETH, 0, user, 1_000e18);
         deal(address(WETH), address(boringVault), 1_000e18);
 
         uint96 sharesToWithdraw = 100e18;
@@ -398,7 +399,7 @@ contract DelayedWithdrawTest is Test, MainnetAddresses {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
+        boringVault.enter(address(this), WETH, 0, user, 1_000e18);
         deal(address(WETH), address(boringVault), 1_000e18);
 
         uint96 sharesToWithdraw = 100e18;
@@ -482,7 +483,7 @@ contract DelayedWithdrawTest is Test, MainnetAddresses {
         address user = vm.addr(1);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
+        boringVault.enter(address(this), WETH, 0, user, 1_000e18);
         deal(address(WETH), address(boringVault), 1_000e18);
 
         uint96 sharesToWithdraw = 100e18;
@@ -532,7 +533,7 @@ contract DelayedWithdrawTest is Test, MainnetAddresses {
         withdrawer.setAllowThirdPartyToComplete(WETH, true);
 
         // Simulate user deposit by minting 1_000 shares to them, and giving BoringVault 1_000 WETH.
-        deal(address(boringVault), user, 1_000e18, true);
+        boringVault.enter(address(this), WETH, 0, user, 1_000e18);
         deal(address(WETH), address(boringVault), 1_000e18);
 
         // Requeting withdraws in an asset that is not withdrawable.

@@ -12,6 +12,7 @@ import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {ILiquidityPool} from "src/interfaces/IStaking.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {AtomicSolverV3, AtomicQueue} from "src/atomic-queue/AtomicSolverV3.sol";
+import {BoringGovernance} from "src/base/BoringGovernance.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
@@ -46,7 +47,7 @@ contract TellerWithMultiAssetSupportTest is Test, MainnetAddresses {
         uint256 blockNumber = 19363419;
         _startFork(rpcKey, blockNumber);
 
-        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
+        boringVault = BoringVault(payable(address(new BoringGovernance(address(this), "Boring Vault", "BV", 18))));
 
         accountant = new AccountantWithRateProviders(
             address(this), address(boringVault), payout_address, 1e18, address(WETH), 1.001e4, 0.999e4, 1, 0, 0

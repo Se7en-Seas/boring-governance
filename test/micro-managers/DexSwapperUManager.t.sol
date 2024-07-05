@@ -17,7 +17,7 @@ import {DecoderCustomTypes} from "src/interfaces/DecoderCustomTypes.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {DexSwapperUManager, UManager} from "src/micro-managers/DexSwapperUManager.sol";
 import {PriceRouter} from "src/interfaces/PriceRouter.sol";
-
+import {BoringGovernance} from "src/base/BoringGovernance.sol";
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
 contract DexSwapperUManagerTest is Test, MainnetAddresses {
@@ -45,7 +45,7 @@ contract DexSwapperUManagerTest is Test, MainnetAddresses {
         uint256 blockNumber = 19512443;
         _startFork(rpcKey, blockNumber);
 
-        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
+        boringVault = BoringVault(payable(address(new BoringGovernance(address(this), "Boring Vault", "BV", 18))));
 
         manager = new ManagerWithMerkleVerification(address(this), address(boringVault), vault);
 

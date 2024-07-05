@@ -9,6 +9,7 @@ import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
 import {ERC20} from "@solmate/tokens/ERC20.sol";
 import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
+import {BoringGovernance} from "src/base/BoringGovernance.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
@@ -35,7 +36,7 @@ contract AccountantWithRateProvidersUsingDifferentDecimalTest is Test, MainnetAd
         uint256 blockNumber = 19618964;
         _startFork(rpcKey, blockNumber);
 
-        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 6);
+        boringVault = BoringVault(payable(address(new BoringGovernance(address(this), "Boring Vault", "BV", 6))));
 
         accountant = new AccountantWithRateProviders(
             address(this), address(boringVault), payoutAddress, 1e6, address(USDC), 1.001e4, 0.999e4, 1, 0, 0

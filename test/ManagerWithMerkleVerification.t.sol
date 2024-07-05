@@ -26,6 +26,7 @@ import {
     PointFarmingDecoderAndSanitizer,
     EigenLayerLSTStakingDecoderAndSanitizer
 } from "src/base/DecodersAndSanitizers/PointFarmingDecoderAndSanitizer.sol";
+import {BoringGovernance} from "src/base/BoringGovernance.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
@@ -58,7 +59,7 @@ contract ManagerWithMerkleVerificationTest is Test, MainnetAddresses {
 
         _startFork(rpcKey, blockNumber);
 
-        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
+        boringVault = BoringVault(payable(address(new BoringGovernance(address(this), "Boring Vault", "BV", 18))));
 
         manager = new ManagerWithMerkleVerification(address(this), address(boringVault), vault);
 

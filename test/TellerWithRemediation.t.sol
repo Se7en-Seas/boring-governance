@@ -12,6 +12,7 @@ import {IRateProvider} from "src/interfaces/IRateProvider.sol";
 import {ILiquidityPool} from "src/interfaces/IStaking.sol";
 import {RolesAuthority, Authority} from "@solmate/auth/authorities/RolesAuthority.sol";
 import {AtomicSolverV3, AtomicQueue} from "src/atomic-queue/AtomicSolverV3.sol";
+import {BoringGovernance} from "src/base/BoringGovernance.sol";
 
 import {Test, stdStorage, StdStorage, stdError, console} from "@forge-std/Test.sol";
 
@@ -46,7 +47,7 @@ contract TellerWithRemediationTest is Test, MainnetAddresses {
         uint256 blockNumber = 19363419;
         _startFork(rpcKey, blockNumber);
 
-        boringVault = new BoringVault(address(this), "Boring Vault", "BV", 18);
+        boringVault = BoringVault(payable(address(new BoringGovernance(address(this), "Boring Vault", "BV", 18))));
 
         accountant = new AccountantWithRateProviders(
             address(this), address(boringVault), payout_address, 1e18, address(WETH), 1.001e4, 0.999e4, 1, 0, 0
@@ -114,7 +115,7 @@ contract TellerWithRemediationTest is Test, MainnetAddresses {
         uint256 amountOfSharesStolen = 1e18;
         address phisher = vm.addr(0xDEAD);
         address victim0 = vm.addr(0xBEEF);
-        deal(address(boringVault), victim0, amountOfSharesStolen, true);
+        boringVault.enter(address(this), WETH, 0, victim0, amountOfSharesStolen);
 
         // Assume phisher is able to steal victim0s shares.
         vm.prank(victim0);
@@ -166,7 +167,7 @@ contract TellerWithRemediationTest is Test, MainnetAddresses {
         address remediator = vm.addr(777);
 
         address victim1 = vm.addr(0xCAFEBABE);
-        deal(address(boringVault), victim1, amountOfSharesStolen, true);
+        boringVault.enter(address(this), WETH, 0, victim1, amountOfSharesStolen);
 
         // Assume phisher is able to steal victim1s shares.
         vm.prank(victim1);
@@ -208,7 +209,7 @@ contract TellerWithRemediationTest is Test, MainnetAddresses {
         boringVault.setBeforeTransferHook(address(teller));
 
         address user = vm.addr(1);
-        deal(address(boringVault), user, 1e18, true);
+        boringVault.enter(address(this), WETH, 0, user, 1e18);
 
         teller.freezeSharesAndStartRemediation(user, address(this), 1e18);
 

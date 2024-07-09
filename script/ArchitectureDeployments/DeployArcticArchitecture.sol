@@ -3,6 +3,7 @@ pragma solidity 0.8.21;
 
 import {MainnetAddresses} from "test/resources/MainnetAddresses.sol";
 import {BoringVault, Auth} from "src/base/BoringVault.sol";
+import {BoringGovernance} from "src/base/BoringGovernance.sol";
 import {ManagerWithMerkleVerification} from "src/base/Roles/ManagerWithMerkleVerification.sol";
 import {SafeTransferLib} from "@solmate/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "@solmate/utils/FixedPointMathLib.sol";
@@ -167,7 +168,7 @@ contract DeployArcticArchitecture is Script, ContractNames {
 
             deployedAddress = _getAddressIfDeployed(names.boringVault);
             if (deployedAddress == address(0)) {
-                creationCode = type(BoringVault).creationCode;
+                creationCode = type(BoringGovernance).creationCode;
                 constructorArgs = abi.encode(owner, boringVaultName, boringVaultSymbol, boringVaultDecimals);
                 boringVault =
                     BoringVault(payable(deployer.deployContract(names.boringVault, creationCode, constructorArgs, 0)));

@@ -5,6 +5,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {ERC721Holder} from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import {BeforeTransferHook} from "src/interfaces/BeforeTransferHook.sol";
+import {ShareLocker} from "src/interfaces/ShareLocker.sol";
 import {Auth, Authority} from "@solmate/auth/Auth.sol";
 import {ERC20Votes, ERC20} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -20,6 +21,11 @@ contract BoringGovernance is ERC20Votes, Auth, ERC721Holder, ERC1155Holder {
      * @notice Contract responsbile for implementing `beforeTransfer`.
      */
     BeforeTransferHook public hook;
+
+    /**
+     * @notice Contract responsible for implementing `canTransfer`.
+     */
+    ShareLocker public shareLocker;
 
     /**
      * @notice The number of decimals for the vault shares.
@@ -122,19 +128,39 @@ contract BoringGovernance is ERC20Votes, Auth, ERC721Holder, ERC1155Holder {
     }
 
     /**
+     * @notice Sets the share locker.
+     * @notice If set to zero address, the share locker logic is disabled.
+     * @dev Callable by OWNER_ROLE.
+     */
+    function setShareLocker(address _shareLocker) external requiresAuth {
+        shareLocker = ShareLocker(_shareLocker);
+    }
+
+    /**
      * @notice Call `beforeTransferHook` passing in `from` `to`, and `msg.sender`.
      */
     function _callBeforeTransfer(address from, address to) internal view {
         if (address(hook) != address(0)) hook.beforeTransfer(from, to, msg.sender);
     }
 
+    /**
+     * @notice Call `canTransfer` on the share locker.
+     */
+    function _canTransfer(address from, address to, uint256 amount) internal view {
+        if (address(shareLocker) != address(0)) {
+            shareLocker.canTransfer(from, to, msg.sender, balanceOf(from), amount);
+        }
+    }
+
     function transfer(address to, uint256 amount) public override returns (bool) {
         _callBeforeTransfer(msg.sender, to);
+        _canTransfer(msg.sender, to, amount);
         return super.transfer(to, amount);
     }
 
     function transferFrom(address from, address to, uint256 amount) public override returns (bool) {
         _callBeforeTransfer(from, to);
+        _canTransfer(from, to, amount);
         return super.transferFrom(from, to, amount);
     }
 
